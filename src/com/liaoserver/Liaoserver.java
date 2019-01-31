@@ -11,7 +11,6 @@ public class Liaoserver {
 	
 	private String configfile = "liao.conf";
 	
-	private Scanner scanner;
 	
 	private Map<String, String> conf;
 	private Map<String, Thread> onlineUsers;
@@ -36,14 +35,6 @@ public class Liaoserver {
 	}
 	
 	public Liaoserver() {
-		try {
-			scanner = new Scanner(new File(configfile));
-		} catch (FileNotFoundException e) {
-			System.out.println("Configuration file missing! --liao.conf");
-			System.exit(-1);
-			e.printStackTrace();
-		}
-		while(scanner.)
 	}
 	
 	public int startServering()
