@@ -68,6 +68,14 @@ public class test {
 			e.printStackTrace();
 		}
 		
+		try {
+			FileReader fileReader = new FileReader("liao.conf");
+		} catch (FileNotFoundException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+		
 	}
 
 }

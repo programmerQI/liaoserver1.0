@@ -42,6 +42,13 @@ public class Liaoserver {
 			}
 			super.run();
 		}
+		
+		public int getUserInfo()
+		{
+			
+			return 1;
+		}
+		
 	}
 	
 	class onlineUserThread extends Thread{
@@ -92,6 +99,22 @@ public class Liaoserver {
 	public int startServering()
 	{
 		return 1;
+	}
+	
+	public String rot13(String iString)
+	{
+		if(iString.isEmpty())
+		{
+			return "";
+		}
+		
+		int len = iString.length();
+		String oString = "";
+		for(int i = 0; i < len ; i ++)
+		{
+			oString = oString + (iString.charAt(i) - 13);
+		}
+		return oString;
 	}
 	
 }
