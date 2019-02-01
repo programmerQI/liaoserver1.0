@@ -8,6 +8,9 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -60,22 +63,33 @@ public class test {
 			e.printStackTrace();
 		}*/
 		
+//		try {
+//			ServerSocket ss = new ServerSocket(9900);
+//			ss.close();
+//			System.out.println(ss.isClosed());
+//		} catch (IOException e) {
+//			e.printStackTrace();
+//		}
+//		
+//		try {
+//			FileReader fileReader = new FileReader("liao.conf");
+//		} catch (FileNotFoundException e) {
+//			// TODO Auto-generated catch block
+//			e.printStackTrace();
+//		}
+//		
+		
+		DateFormat dateFormat = new SimpleDateFormat("yyyy_MM_dd");
+		Date date = new Date();
+		System.out.println(dateFormat.format(date));
+		
+		File file = new File("data/" + dateFormat.format(date));
 		try {
-			ServerSocket ss = new ServerSocket(9900);
-			ss.close();
-			System.out.println(ss.isClosed());
+			System.out.println(file.createNewFile());
 		} catch (IOException e) {
+			System.out.println(dateFormat.format(date) + "exist!");
 			e.printStackTrace();
 		}
-		
-		try {
-			FileReader fileReader = new FileReader("liao.conf");
-		} catch (FileNotFoundException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		
-		
 	}
 
 }

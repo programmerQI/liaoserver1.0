@@ -27,12 +27,25 @@ public class testS {
 				System.out.println(string);
 			}
 			
+			if(socket.isClosed())
+			{
+				System.out.println("s closed.");
+			}
+			
+			if(!socket.isConnected())
+			{
+				System.out.println("s disconnected.");
+			}
+			
 			bufferedReader.close();
+			socket.close();
 			serverSocket.close();
+			
+			
 			System.out.println("Socket has been closed!");
 			
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
+			
 			e.printStackTrace();
 		}
 		
