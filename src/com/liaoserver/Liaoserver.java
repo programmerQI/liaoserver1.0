@@ -22,13 +22,14 @@ public class Liaoserver {
 	public static String CONFIG_FILE = "liao.conf";
 	
 	private File dataFile;
-	private Vector<File> dataFiles;
+	private Vector<String> historyDataVectors;
 	private int dataFilesIndex;
 	
 	private String dateString;
 	private DateFormat dateFormat;
 	
 	private Vector<String> namesStrings;
+	private Vector<Thread> userThreads;
 	private HashMap<String, String> confvaluesHashMap;
 	private HashMap<String, Thread> onlineusersHashMap;
 	
@@ -43,7 +44,9 @@ public class Liaoserver {
 		public ServersocketThread() {
 			try {
 				
-				serverSocket = new ServerSocket(Integer.parseInt(confvaluesHashMap.get("Port")));
+				int port = Integer.parseInt(confvaluesHashMap.get("Port"));
+				serverSocket = new ServerSocket(port);
+				System.out.println("The server is listenning at port " + port + ".");
 				
 			} catch (IOException e) {
 				e.printStackTrace();
@@ -56,11 +59,13 @@ public class Liaoserver {
 			{
 				try {
 					
+					System.out.println("Waiting for connections...");
 					Socket socket = serverSocket.accept();
 					String nameString = getUserInfo(socket);
 					
 					namesStrings.add(nameString);
 					OnlineUserThread newOnlineUserThread = new OnlineUserThread(socket, nameString);
+					userThreads.add(newOnlineUserThread);
 					onlineusersHashMap.put(nameString, newOnlineUserThread);
 					
 				} catch (IOException e) {
@@ -105,6 +110,7 @@ public class Liaoserver {
 			
 			this.socket = socket;
 			this.nameString = nameString;
+			System.out.println(nameString + " has joined the channel!");
 			
 		}
 		
@@ -116,10 +122,11 @@ public class Liaoserver {
 				inputStreamReader = new InputStreamReader(socket.getInputStream());
 				bufferedReader = new BufferedReader(inputStreamReader);
 				
-				String string;
-				while( (string = rot13_decrypt(bufferedReader.readLine())) != null && string.equals("bye") )
+				System.out.println("Waiting for " + nameString + " input data...");
+				String tmpString;
+				while( (tmpString = rot13_decrypt(bufferedReader.readLine())) != null && tmpString.equals("bye") )
 				{
-					
+					addData(tmpString);
 				}
 				
 			} catch (IOException e) {
@@ -128,9 +135,44 @@ public class Liaoserver {
 			super.run();
 		}
 		
+		synchronized private void addData(String string)
+		{
+			System.out.println(nameString + " says " + string);
+			historyDataVectors.add(string);
+			System.out.println("Successfully adding data!");
+		}
+		
 		public String getNameString()
 		{
 			return nameString;
+		}
+		
+		public int close()
+		{
+			int ans = 1;
+			try {
+				inputStreamReader.close();
+				bufferedReader.close();
+			} catch (IOException e1) {
+				System.out.println("Unable to close the stream of " + nameString );
+				e1.printStackTrace();
+				ans = -1;
+			}
+			
+			try {
+				socket.close();
+			} catch (IOException e) {
+				System.out.println( "Fail to close the socket of " + nameString );
+				e.printStackTrace();
+				ans = -1;
+			}
+			if(ans == 1)
+			{
+				System.out.println("The stream of " + nameString + " has been closed.");
+				System.out.println("The socket of " + nameString + " has been closed.");
+			}
+
+			return ans;
 		}
 	}
 	
@@ -138,8 +180,8 @@ public class Liaoserver {
 		
 		dataFilesIndex = 0;
 		
-		dataFiles = new Vector<File>();
 		namesStrings = new Vector<String>();
+		historyDataVectors = new Vector<String>();
 		confvaluesHashMap = new HashMap<String, String>();
 		onlineusersHashMap = new HashMap<String, Thread>();
 		
@@ -162,6 +204,17 @@ public class Liaoserver {
 			{
 				System.out.println("\"" + dateString + "\"" + " already exists.");
 			}
+			
+			BufferedReader bufferedReader = new BufferedReader(new FileReader(dataFile));
+			
+			String tmpString;
+			while( (tmpString = bufferedReader.readLine()) != null )
+			{
+				historyDataVectors.add(tmpString);
+			}
+			
+			bufferedReader.close();
+			
 		} catch (IOException e) {
 			e.printStackTrace();
 			return -1;
@@ -196,9 +249,27 @@ public class Liaoserver {
 		return 1;
 	}
 	
-	public int startServering()
+	public void startServering()
 	{
-		return 1;
+		ServersocketThread serversocketThread = new ServersocketThread();
+		serversocketThread.run();
+	}
+	
+	public void stopLiaoServer()
+	{
+		for(Thread idThread : userThreads)
+		{
+			((OnlineUserThread)idThread).close();
+			idThread.interrupt();
+		}
+		System.out.println("All users threads have been stoped.");
+		
+		try {
+			serverSocket.close();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 	}
 	
 	public String rot13_decrypt(String iString)
