@@ -35,7 +35,8 @@ public class Liaoserver {
 	
 	private ServerSocket serverSocket;
 	
-	
+	// Create serversocket class as a thread
+	// 
 	class ServersocketThread extends Thread{
 		
 		private BufferedReader bufferedReader;
@@ -44,6 +45,7 @@ public class Liaoserver {
 		public ServersocketThread() {
 			try {
 				
+				// Creating a socket based on the port number that stored in liao.conf file
 				int port = Integer.parseInt(confvaluesHashMap.get("Port"));
 				serverSocket = new ServerSocket(port);
 				System.out.println("The server is listenning at port " + port + ".");
@@ -59,8 +61,10 @@ public class Liaoserver {
 			{
 				try {
 					
+					// Waiting for incoming connection
 					System.out.println("Waiting for connections...");
 					Socket socket = serverSocket.accept();
+					System.out.println("Connected!");
 					String nameString = getUserInfo(socket);
 					
 					namesStrings.add(nameString);
