@@ -14,6 +14,8 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Vector;
 
+import com.sun.jdi.event.ThreadDeathEvent;
+
 
 
 public class Liaoserver {
@@ -32,11 +34,13 @@ public class Liaoserver {
 	private Vector<Thread> userThreads;
 	private HashMap<String, String> confvaluesHashMap;
 	private HashMap<String, Thread> onlineusersHashMap;
+	private int numUsers;
 	
 	private ServerSocket serverSocket;
 	
-	// Create serversocket class as a thread
-	// 
+	
+	
+	// Create server socket class as a thread
 	class ServersocketThread extends Thread{
 		
 		private BufferedReader bufferedReader;
@@ -55,6 +59,16 @@ public class Liaoserver {
 			}
 		}
 		
+		// Add the connected users.
+		public void addUser(String userName, Socket userSocket) {
+			
+			namesStrings.add(userName);
+			OnlineUserThread newOnlineUserThread = new OnlineUserThread(userSocket, userName);
+			userThreads.add(newOnlineUserThread);
+			onlineusersHashMap.put(userName, newOnlineUserThread);
+			
+		}
+		
 		@Override
 		public void run() {
 			while(!serverSocket.isClosed())
@@ -64,16 +78,18 @@ public class Liaoserver {
 					// Waiting for incoming connection
 					System.out.println("Waiting for connections...");
 					Socket socket = serverSocket.accept();
-					System.out.println("Connected!");
+					
+					System.out.println("A user has connected!");
 					String nameString = getUserInfo(socket);
 					
-					namesStrings.add(nameString);
-					OnlineUserThread newOnlineUserThread = new OnlineUserThread(socket, nameString);
-					userThreads.add(newOnlineUserThread);
-					onlineusersHashMap.put(nameString, newOnlineUserThread);
+					addUser(nameString, socket);
+					System.out.println(nameString + " has joined.");
 					
 				} catch (IOException e) {
+					
+					System.out.println("The user failed to connect.");
 					e.printStackTrace();
+					
 				}
 				
 
@@ -114,7 +130,7 @@ public class Liaoserver {
 			
 			this.socket = socket;
 			this.nameString = nameString;
-			System.out.println(nameString + " has joined the channel!");
+			System.out.println(nameString + "'thread has bee created.");
 			
 		}
 		

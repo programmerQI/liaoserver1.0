@@ -14,6 +14,7 @@ public class testS {
 			
 			System.out.println("Open Socket...");
 			ServerSocket serverSocket = new ServerSocket(9900);
+			System.out.println(serverSocket.getInetAddress().toString());
 			
 			System.out.println("Waiting for connection...");
 			Socket socket = serverSocket.accept();
@@ -21,7 +22,13 @@ public class testS {
 			
 			BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
 			
-			String string;
+			String string = "";
+//			while(!string.equalsIgnoreCase("bye!"))
+//			{
+//				BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+//				System.out.println(string);
+//				bufferedReader.close();
+//			}
 			while((string = bufferedReader.readLine()) != null && !string.equalsIgnoreCase("bye!"))
 			{
 				System.out.println(string);
@@ -37,7 +44,7 @@ public class testS {
 				System.out.println("s disconnected.");
 			}
 			
-			bufferedReader.close();
+			//bufferedReader.close();
 			socket.close();
 			serverSocket.close();
 			

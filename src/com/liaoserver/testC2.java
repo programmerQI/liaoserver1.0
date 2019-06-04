@@ -9,9 +9,7 @@ import java.io.PrintWriter;
 import java.net.Socket;
 import java.net.UnknownHostException;
 
-import com.sun.jdi.event.ThreadDeathEvent;
-
-public class testC {
+public class testC2 {
 	
 	public static void main(String[] args) {
 		try {
@@ -45,4 +43,5 @@ public class testC {
 			e.printStackTrace();
 		}
 	}
+
 }

@@ -10,6 +10,7 @@ public class testclent {
 		java.util.Scanner scanner = new java.util.Scanner(System.in);
 		try {
 			Socket socket = new Socket("localhost", 9900);
+			System.out.println(socket.getInetAddress().toString());
 			String string;
 			string = scanner.nextLine();
 			System.out.println("->");

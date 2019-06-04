@@ -1,5 +1,6 @@
 package com.liaoserver;
 
+import java.awt.desktop.ScreenSleepEvent;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -17,8 +18,86 @@ import java.util.Map;
 
 public class test {
 
-	Map<String, Thread> onlineusersMap;
+	//Map<String, Thread> onlineusersMap;
+	
+	class MyThread extends Thread{
+		
+		@Override
+		public void run() {
+			
+			super.run();
+			
+			while(true)
+			{
+				
+				System.out.println("Hello!");
+				
+				try {
+					sleep(3 * 1000);
+				} catch (InterruptedException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+			}
+			
+		}
+		
+		public void go()
+		{
+			System.out.println("lets go");
+		}
+		
+		
+		
+	}
+	
+	public void test()
+	{
+		MyThread myThread = new MyThread();
+		myThread.start();
+		myThread.go();
+		
+		
+		
+	}
+	
+	
 	public static void main(String[] args) {
+		
+//		Thread thread = new Thread() {
+//			@Override
+//			public void run() {
+//				
+//					super.run();
+//					
+//					System.out.println("Hello!");
+//					
+//					while(true)
+//					{
+//						try {
+//							sleep(3 * 1000);
+//						} catch (InterruptedException e) {
+//							// TODO Auto-generated catch block
+//							e.printStackTrace();
+//						}
+//					}
+//			}
+//			
+//		};
+//		
+//		thread.start();
+		
+		
+		test t = new test();
+		t.test();
+		
+		
+		
+//		String string = "wo";
+//		String[] strs;
+//		strs = string.split("");
+//		System.out.println(strs.length);
+//		
 		/*try {
 			ServerSocket serverSocket = new ServerSocket(9900);
 			System.out.println("Waiting...");
@@ -79,17 +158,17 @@ public class test {
 //		}
 //		
 		
-		DateFormat dateFormat = new SimpleDateFormat("yyyy_MM_dd");
-		Date date = new Date();
-		System.out.println(dateFormat.format(date));
-		
-		File file = new File("data/" + dateFormat.format(date));
-		try {
-			System.out.println(file.createNewFile());
-		} catch (IOException e) {
-			System.out.println(dateFormat.format(date) + "exist!");
-			e.printStackTrace();
-		}
+//		DateFormat dateFormat = new SimpleDateFormat("yyyy_MM_dd");
+//		Date date = new Date();
+//		System.out.println(dateFormat.format(date));
+//		
+//		File file = new File("data/" + dateFormat.format(date));
+//		try {
+//			System.out.println(file.createNewFile());
+//		} catch (IOException e) {
+//			System.out.println(dateFormat.format(date) + "exist!");
+//			e.printStackTrace();
+//		}
 	}
 
 }
