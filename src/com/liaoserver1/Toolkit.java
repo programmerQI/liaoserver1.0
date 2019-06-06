@@ -15,7 +15,7 @@ public class Toolkit {
 		String oString = "";
 		for(int i = 0; i < len ; i ++)
 		{
-			oString = oString + (iString.charAt(i) + 13);
+			oString = oString + (char)(iString.charAt(i) + 13);
 		}
 		return oString;
 	}
@@ -32,7 +32,7 @@ public class Toolkit {
 		String oString = "";
 		for(int i = 0; i < len ; i ++)
 		{
-			oString = oString + (iString.charAt(i) - 13);
+			oString = oString + (char)(iString.charAt(i) - 13);
 		}
 		return oString;
 	}

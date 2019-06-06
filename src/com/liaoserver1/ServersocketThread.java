@@ -158,7 +158,7 @@ public class ServersocketThread extends Thread{
 				inputStreamReader = new InputStreamReader(userSocket.getInputStream());
 				bufferedReader = new BufferedReader(inputStreamReader);
 				
-				String username = bufferedReader.readLine();
+				String username = Toolkit.rot13_decrypt(bufferedReader.readLine());
 				
 				if(username == null)
 				{

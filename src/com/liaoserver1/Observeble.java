@@ -9,6 +9,6 @@ public interface Observeble {
 	public abstract void remove(Observer observer);
 	
 	//
-	public abstract void broadcast();
+	public abstract void broadcast(String message);
 
 }

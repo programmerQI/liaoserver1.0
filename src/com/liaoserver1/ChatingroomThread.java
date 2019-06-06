@@ -1,24 +1,73 @@
 package com.liaoserver1;
 
-public class ChatingroomThread implements Observeble{
+import java.util.Vector;
+
+public class ChatingroomThread extends Thread implements Observeble{
 	
+	private Vector<Observer> users;
+	private Vector<String> chatHistory; 
 	
+	public ChatingroomThread(Vector<String> chatHistory) {
+		
+		users = new Vector<Observer>();
+		this.chatHistory = chatHistory;
+		
+	}
+	
+	@Override
+	public void run() {
+		
+		
+		
+		super.run();
+	}
 
 	@Override
 	public void register(Observer observer) {
-		// TODO Auto-generated method stub
+		
+		users.add(observer);
+		
+		new Thread() {
+			
+			@Override
+			public void run() {
+				
+				super.run();
+				
+				try {
+					
+					for(String i : chatHistory)
+					{
+						observer.getMessage(i);
+					}
+					
+				} catch (Exception e) {
+					
+					e.printStackTrace();
+					
+				}
+				
+			}
+		}.start();
 		
 	}
 
 	@Override
 	public void remove(Observer observer) {
-		// TODO Auto-generated method stub
+		
+		users.remove(observer);
 		
 	}
 
 	@Override
-	public void broadcast() {
-		// TODO Auto-generated method stub
+	public void broadcast(String message) {
+		
+		for(Observer i : users)
+		{
+			
+			i.getMessage(message);
+			
+		}
 		
 	}
 

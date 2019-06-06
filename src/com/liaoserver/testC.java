@@ -26,10 +26,6 @@ public class testC {
 			{
 				printWriter.println(string);
 				printWriter.flush();
-				if(string.equalsIgnoreCase("bye"))
-				{
-					break;
-				}
 				System.out.println("The message has been send.");
 			}
 			printWriter.close();

@@ -1,10 +1,14 @@
 package com.liaoserver1;
 
 import java.io.BufferedReader;
+import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
+import java.io.FileWriter;
 import java.io.IOException;
+import java.io.OutputStreamWriter;
+import java.io.PrintWriter;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -14,7 +18,7 @@ import java.util.Vector;
 
 import com.sun.jdi.event.ThreadDeathEvent;
 
-public class LiaoServer1{
+public class LiaoServer1 implements Observeble{
 	
 	
 	//
@@ -37,6 +41,8 @@ public class LiaoServer1{
 	
 	// Server socket thread
 	private ServersocketThread serversocketThread;
+	//private Thread broadcastThread;
+	//private ChatingroomThread chatingroomThread;
 	
 	
 	
@@ -195,23 +201,108 @@ public class LiaoServer1{
 	}
 	
 	// 
-	public void delOnlineUser(OnlineUserThread onlineUserThread)
+	public synchronized void delOnlineUser(OnlineUserThread onlineUserThread)
 	{
 		
-		onlineUserThread.interrupt();
+		new Thread() {
+			@Override
+			public void run() {
+				
+				super.run();
+
+				onlineUserThread.interrupt();
+				
+				System.out.println(onlineUserThread.getUsername() + "s thread has been interrupted.");
+				
+				//chatingroomThread.remove(onlineUserThread);
+				
+				onlineUsers.remove(onlineUserThread);
+				
+				System.out.println("The thread has been removed.");
+				
+			}
+		}.start();
 		
-		System.out.println(onlineUserThread.getUsername() + "s thread has been interrupted.");
+	}
+
+
+	@Override
+	public void register(Observer observer) {
+		// TODO Auto-generated method stub
 		
-		onlineUsers.remove(onlineUserThread);
+	}
+
+
+	@Override
+	public void remove(Observer observer) {
+		// TODO Auto-generated method stub
 		
-		System.out.println("The thread has been removed.");
+	}
+
+
+	@Override
+	public synchronized void broadcast(String message) {
+		
+		historyDataStrings.add(message);
+		
+		new Thread() {
+			@Override
+			public void run() {
+				super.run();
+				
+				for(OnlineUserThread i : onlineUsers) {
+					
+					i.getMessage(message);
+					
+				}
+				
+			}
+		}.start();
 		
 	}
 	
 	
-	private void sendHistoryMessage() {
+	public synchronized void sendHistoryMessage(OnlineUserThread onlineUserThread) {
 		
+		System.out.println("Sending the history message.");
 		
+		for(String i : historyDataStrings) {
+			
+			System.out.println(i);
+			
+			onlineUserThread.getMessage(i);
+			
+		}
+		System.out.println();
+		
+	}
+	
+	
+	private void saveDataTofile() {
+		
+		try {
+			
+			PrintWriter printWriter = new PrintWriter(new BufferedWriter(new FileWriter(dataFile)));
+			
+			for(String i : historyDataStrings)
+			{
+				
+				printWriter.println(i);
+				
+			}
+			
+			printWriter.flush();
+			
+			System.out.println("The data has already been saved to the file.");
+			
+			printWriter.close();
+			
+		} catch (IOException e) {
+			
+			System.out.println("Fail to write data to file.");
+			
+			e.printStackTrace();
+		}
 
 	}
 	

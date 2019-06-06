@@ -1,8 +1,10 @@
 package com.liaoserver1;
 
 import java.io.BufferedReader;
+import java.io.BufferedWriter;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 import java.net.Socket;
 
@@ -14,6 +16,8 @@ public class OnlineUserThread extends Thread implements Observer{
 	private BufferedReader bufferedReader;
 	private InputStreamReader inputStreamReader;
 	private PrintWriter printWriter;
+	private BufferedWriter bufferedWriter;
+	private OutputStreamWriter outputStreamWriter;
 	
 	private LiaoServer1 server;
 	
@@ -41,15 +45,17 @@ public class OnlineUserThread extends Thread implements Observer{
 		
 	}
 	
-	private void initChannel() throws IOException {
-		
-		
-			printWriter = new PrintWriter(socket.getOutputStream());
+	private void initChannel() throws IOException {		
 			
 			inputStreamReader = new InputStreamReader(socket.getInputStream());
 			
 			bufferedReader = new BufferedReader(inputStreamReader);
 			
+			outputStreamWriter = new OutputStreamWriter(socket.getOutputStream());
+			
+			bufferedWriter = new BufferedWriter(outputStreamWriter);
+
+			printWriter = new PrintWriter(bufferedWriter);
 
 	}
 	
@@ -83,6 +89,38 @@ public class OnlineUserThread extends Thread implements Observer{
 				
 			}
 		}
+		
+		if(bufferedWriter != null)
+        {
+            try {
+
+                bufferedWriter.close();
+
+            } catch (IOException e) {
+
+                e.printStackTrace();
+
+            }
+        }
+
+        if(outputStreamWriter != null)
+        {
+            try {
+                outputStreamWriter.close();
+            } catch (IOException e) {
+
+                e.printStackTrace();
+
+            }
+        }
+
+
+        if(printWriter != null)
+        {
+
+            printWriter.close();
+
+        }
 		
 		if(printWriter != null)
 		{
@@ -122,7 +160,7 @@ public class OnlineUserThread extends Thread implements Observer{
 		String message = "";
 		while( (message = bufferedReader.readLine()) != null)
 		{
-				System.out.println(message);
+			server.broadcast(Toolkit.rot13_decrypt(message));
 		}
 
 	}
@@ -149,11 +187,15 @@ public class OnlineUserThread extends Thread implements Observer{
 		
 		try {
 			
+			server.sendHistoryMessage(this);
+			
 			gettingMessagesfromUser();
 			
 		} catch (IOException e) {
 			
 			System.out.println("Fail to get message from " + username);
+			
+			server.delOnlineUser(this);
 			
 			e.printStackTrace();
 			
@@ -165,9 +207,11 @@ public class OnlineUserThread extends Thread implements Observer{
 	}
 
 	@Override
-	public void getMessage(String message) {
+	public synchronized void getMessage(String message) {
 		
-		printWriter.append(Toolkit.rot13_encrypt(message));
+		System.out.println(username + " gets " + message);
+		
+		printWriter.println(Toolkit.rot13_encrypt(message));
 		printWriter.flush();
 		
 	}
