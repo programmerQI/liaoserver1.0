@@ -3,6 +3,7 @@ package com.liaoserver1;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.io.PrintWriter;
 import java.net.ServerSocket;
 import java.net.Socket;
 
@@ -10,6 +11,7 @@ import com.sun.jdi.event.ThreadDeathEvent;
 
 public class ServersocketThread extends Thread{
 	
+	public static final String POLLING_CODE = "*poll*";
 	public static final int STATUS_LISTENNING = 301;
 	public static final int STATUS_STOP = 302;
 	
@@ -18,10 +20,10 @@ public class ServersocketThread extends Thread{
 	private int status;
 	
 	private ServerSocket serverSocket;
-	private Socket userSocket;
+//	private Socket userSocket;
 	
-	private BufferedReader bufferedReader;
-	private InputStreamReader inputStreamReader;
+//	private BufferedReader bufferedReader;
+//	private InputStreamReader inputStreamReader;
 	
 	private LiaoServer1 server;
 	
@@ -32,10 +34,10 @@ public class ServersocketThread extends Thread{
 		this.setStatus(STATUS_STOP);
 		
 		serverSocket = null;
-		userSocket = null;
+//		userSocket = null;
 		
-		bufferedReader = null;
-		inputStreamReader = null;
+//		bufferedReader = null;
+//		inputStreamReader = null;
 		
 		this.server = server;
 		
@@ -60,61 +62,61 @@ public class ServersocketThread extends Thread{
 		this.status = status;
 	}
 	
-	private void quietCloseStreams() {
-		
-		if(bufferedReader != null)
-		{
-			try {
-				
-				bufferedReader.close();
-				
-			} catch (IOException e) {
-				
-				e.printStackTrace();
-				
-			}
-		}
-		
-		if(inputStreamReader != null)
-		{
-			
-			try {
-				
-				inputStreamReader.close();
-				
-			} catch (IOException e) {
-				
-				e.printStackTrace();
-				
-			}
-			
-		}
-		
-		System.out.println("Server socket's streams have been closed.");
-
-	}
+//	private void quietCloseStreams() {
+//		
+//		if(bufferedReader != null)
+//		{
+//			try {
+//				
+//				bufferedReader.close();
+//				
+//			} catch (IOException e) {
+//				
+//				e.printStackTrace();
+//				
+//			}
+//		}
+//		
+//		if(inputStreamReader != null)
+//		{
+//			
+//			try {
+//				
+//				inputStreamReader.close();
+//				
+//			} catch (IOException e) {
+//				
+//				e.printStackTrace();
+//				
+//			}
+//			
+//		}
+//		
+//		System.out.println("Server socket's streams have been closed.");
+//
+//	}
 	
-	private void quietCloseUserSocket() {
-		
-		if(userSocket != null)
-		{
-			if(!userSocket.isClosed())
-			{
-				try {
-					
-					userSocket.close();
-					
-				} catch (IOException e) {
-
-					e.printStackTrace();
-					
-				}
-			}
-		}
-		
-		System.out.println("Server socket has been closed.");
-
-	}
+//	private void quietCloseUserSocket() {
+//		
+//		if(userSocket != null)
+//		{
+//			if(!userSocket.isClosed())
+//			{
+//				try {
+//					
+//					userSocket.close();
+//					
+//				} catch (IOException e) {
+//
+//					e.printStackTrace();
+//					
+//				}
+//			}
+//		}
+//		
+//		System.out.println("Server socket has been closed.");
+//
+//	}
 	
 	
 
@@ -140,6 +142,8 @@ public class ServersocketThread extends Thread{
 			
 			e.printStackTrace();
 			
+			interrupt();
+			
 			return;
 			
 		} 
@@ -151,25 +155,67 @@ public class ServersocketThread extends Thread{
 			
 			try {
 				
-				userSocket = serverSocket.accept();
+				Socket userSocket = serverSocket.accept();
 				
-				System.out.println("Connection recived.");
-				
-				inputStreamReader = new InputStreamReader(userSocket.getInputStream());
-				bufferedReader = new BufferedReader(inputStreamReader);
-				
-				String username = Toolkit.rot13_decrypt(bufferedReader.readLine());
-				
-				if(username == null)
-				{
-					System.out.println("The user fail to join, because no user name.");
-					quietCloseStreams();
+//				System.out.println("Connection recived.");
+//				
+//				inputStreamReader = new InputStreamReader(userSocket.getInputStream());
+//				bufferedReader = new BufferedReader(inputStreamReader);
+//				
+//				String username = Toolkit.rot13_decrypt(bufferedReader.readLine());
+//				
+//				if(username == null)
+//				{
+//					System.out.println("The user fail to join, because no user name.");
+//					quietCloseStreams();
+//					
+//				}
+//				else
+//				{
+//					server.addOnlineUser(new OnlineUserThread(username, userSocket));
+//				}
+				new Thread() {
 					
-				}
-				else
-				{
-					server.addOnlineUser(new OnlineUserThread(username, userSocket));
-				}
+					@Override
+					public void run() {
+						
+						super.run();
+						
+						try {
+							
+							BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(userSocket.getInputStream()));
+							
+							String username = Toolkit.rot13_decrypt(bufferedReader.readLine());
+							
+							if(username.compareTo(POLLING_CODE) == 0)
+							{
+								System.out.println("Pulling...");
+								username = Toolkit.rot13_decrypt(bufferedReader.readLine());
+								PrintWriter printWriter = new PrintWriter(userSocket.getOutputStream());
+								printWriter.println( Toolkit.rot13_encrypt("" + server.checkPollingList(username)) );
+								System.out.println("pulling..." + username);
+								printWriter.flush();
+								
+//								printWriter.close();
+							}
+							else
+							{
+								server.addOnlineUser(new OnlineUserThread(username, userSocket));
+							}
+							
+//							bufferedReader.close();
+							
+						} catch (IOException e) {
+
+							System.out.println("The user failed to connect to the server.");
+							
+							e.printStackTrace();
+							
+						}
+						
+					}
+					
+				}.start();
 				
 			} catch (IOException e) {
 				
@@ -177,12 +223,13 @@ public class ServersocketThread extends Thread{
 				
 				e.printStackTrace();
 
-				quietCloseStreams();
+//				quietCloseStreams();
 				
-				quietCloseUserSocket();
+//				quietCloseUserSocket();
 				
 			}
 			
+			System.out.println("Connection recived.");
 			
 			
 			
@@ -197,9 +244,7 @@ public class ServersocketThread extends Thread{
 	@Override
 	public void interrupt() {
 		
-		quietCloseStreams();
-		
-		quietCloseUserSocket();
+//		quietCloseUserSocket();
 		
 		try {
 			

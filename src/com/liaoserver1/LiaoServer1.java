@@ -7,7 +7,6 @@ import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
@@ -16,7 +15,6 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Vector;
 
-import com.sun.jdi.event.ThreadDeathEvent;
 
 public class LiaoServer1 implements Observeble{
 	
@@ -37,6 +35,7 @@ public class LiaoServer1 implements Observeble{
 	private Map<String, String> confValuesMap; 
 	private Vector<String> historyDataStrings;
 	private Vector<OnlineUserThread> onlineUsers;
+	private Vector<String> pollingList;
 	
 	
 	// Server socket thread
@@ -58,6 +57,8 @@ public class LiaoServer1 implements Observeble{
 		historyDataStrings = new Vector<String>();
 		
 		onlineUsers = new Vector<OnlineUserThread>();
+		
+		pollingList = new Vector<String>();
 		
 	}
 	
@@ -182,7 +183,7 @@ public class LiaoServer1 implements Observeble{
 	
 	
 	//
-	public void addOnlineUser(OnlineUserThread onlineUserThread) {
+	public synchronized void addOnlineUser(OnlineUserThread onlineUserThread) {
 		
 		onlineUserThread.setServer(this);
 		
@@ -193,6 +194,8 @@ public class LiaoServer1 implements Observeble{
 		//System.out.println("9011" + onlineUserThread.socket.isClosed());
 		
 		onlineUsers.add(onlineUserThread);
+		
+		pollingList.add(onlineUserThread.getUsername());
 
 		//System.out.println("1011" + onlineUserThread.socket.isClosed());
 		
@@ -215,6 +218,8 @@ public class LiaoServer1 implements Observeble{
 				System.out.println(onlineUserThread.getUsername() + "s thread has been interrupted.");
 				
 				//chatingroomThread.remove(onlineUserThread);
+				
+				pollingList.remove(onlineUserThread.getName());
 				
 				onlineUsers.remove(onlineUserThread);
 				
@@ -304,6 +309,28 @@ public class LiaoServer1 implements Observeble{
 			e.printStackTrace();
 		}
 
+	}
+	
+	
+	public boolean checkPollingList(String name)
+	{
+		
+		System.out.println(name);
+		
+		for(String i : pollingList)
+		{
+			
+			System.out.println("This is it " + i);
+			
+			if(name.compareTo(i) == 0) {
+				
+				return true;
+				
+			}
+			
+		}
+		
+		return false;
 	}
 	
 	
